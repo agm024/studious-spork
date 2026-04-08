@@ -1,0 +1,1 @@
+web: gunicorn main_backend.wsgi:application --bind 0.0.0.0:${PORT:-10000} --workers 1 --threads 2 --worker-class gthread --timeout 120 --access-logfile - --error-logfile -

@@ -1,0 +1,14 @@
+{% extends "admin/base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Site administration" %} | Gruhaved Organic Food And Agro Products Admin{% endblock %}
+
+{% block branding %}
+<h1 id="site-name">
+  <a href="{% url 'admin:index' %}">
+    🛍️ Gruhaved Organic Food And Agro Products <span style="font-weight:400;font-size:0.9rem;opacity:0.8;">Admin Panel</span>
+  </a>
+</h1>
+{% endblock %}
+
+{% block nav-global %}{% endblock %}
