@@ -1,0 +1,164 @@
+import { useState } from "react";
+import { NavLink, useNavigate } from "react-router-dom";
+import { ShoppingCart, User, LogOut, Menu, X, Package } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import ThemeToggle from "./ThemeToggle";
+import { useCart } from "../context/CartContext";
+import { useAuth } from "../context/AuthContext";
+
+export default function Navbar() {
+  const { totalItems } = useCart();
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+
+  const linkCls = ({ isActive }) =>
+    `px-3 py-2 rounded-lg text-sm font-medium transition ${
+      isActive
+        ? "bg-slate-900 text-white dark:bg-white dark:text-slate-900"
+        : "hover:bg-slate-100 dark:hover:bg-slate-800"
+    }`;
+
+  const handleLogout = () => {
+    logout();
+    setUserMenuOpen(false);
+    navigate("/");
+  };
+
+  return (
+    <header className="sticky top-0 z-50 backdrop-blur bg-white/80 dark:bg-slate-950/80 border-b border-slate-200 dark:border-slate-800">
+      <nav className="container-pad h-20 flex items-center justify-between">
+        {/* Logo */}
+        <NavLink to="/" className="leading-tight select-none">
+          <span
+            className="block text-xl md:text-2xl font-extrabold tracking-tight"
+            style={{ color: "oklch(0.64 0.19 150)" }}
+          >
+            Gruhaved Organic Food<br></br> And Agro Products
+          </span>
+        </NavLink>
+
+        {/* Desktop links */}
+        <div className="hidden md:flex items-center gap-1">
+          <NavLink to="/" className={linkCls}>Home</NavLink>
+          <NavLink to="/products" className={linkCls}>Products</NavLink>
+        </div>
+
+        {/* Right icons */}
+        <div className="flex items-center gap-1 sm:gap-2">
+          {/* Cart */}
+          <NavLink to="/cart" className={({ isActive }) =>
+            `relative px-3 py-2 rounded-lg text-sm font-medium transition ${
+              isActive
+                ? "bg-slate-900 text-white dark:bg-green-600 dark:text-slate-900"
+                : "hover:bg-slate-100 dark:hover:bg-green-700/30 transition"
+            }`
+          } aria-label="Cart">
+            <ShoppingCart className="inline w-4 h-4 mr-1" />
+            <span className="hidden sm:inline">Cart</span>
+            {totalItems > 0 && (
+              <motion.span
+                key={totalItems}
+                initial={{ scale: 0.6 }}
+                animate={{ scale: 1 }}
+                className="absolute -top-1 -right-1 min-w-[18px] h-[18px] flex items-center justify-center rounded-full bg-emerald-600 text-white text-[10px] font-bold px-1"
+              >
+                {totalItems > 99 ? "99+" : totalItems}
+              </motion.span>
+            )}
+          </NavLink>
+
+          
+
+          {/* User menu */}
+          <div className="relative">
+            {user ? (
+              <button
+                onClick={() => setUserMenuOpen((v) => !v)}
+                className="px-3 py-2 rounded-lg text-sm font-medium hover:bg-slate-100 dark:hover:bg-slate-800 transition flex items-center gap-1.5"
+              >
+                <User size={16} />
+                <span className="hidden sm:inline max-w-[80px] truncate">
+                  {user.name}
+                </span>
+              </button>
+            ) : (
+              <NavLink to="/signin" className={linkCls}>
+                <User className="inline w-4 h-4 mr-1" />
+                <span className="hidden sm:inline">Sign In</span>
+              </NavLink>
+            )}
+
+            <AnimatePresence>
+              {userMenuOpen && user && (
+                <motion.div
+                  initial={{ opacity: 0, y: -8, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -8, scale: 0.95 }}
+                  transition={{ duration: 0.15 }}
+                  className="absolute right-0 top-full mt-1 w-48 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-lg py-1 z-50"
+                >
+                  <div className="px-4 py-2 border-b border-slate-100 dark:border-slate-800">
+                    <p className="text-sm font-medium truncate">{user.name}</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
+                      {user.email}
+                    </p>
+                  </div>
+                  <div className="border-t border-slate-100 dark:border-slate-800 mt-1" />
+                  <button
+                    onClick={handleLogout}
+                    className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition"
+                  >
+                    <LogOut size={14} />
+                    Sign Out
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
+          {/* Mobile menu toggle */}
+          <button
+            className="md:hidden px-2 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+            onClick={() => setMobileOpen((v) => !v)}
+            aria-label="Toggle menu"
+          >
+            {mobileOpen ? <X size={20} /> : <Menu size={20} />}
+          </button>
+        </div>
+      </nav>
+
+      {/* Mobile menu */}
+      <AnimatePresence>
+        {mobileOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.2 }}
+            className="md:hidden border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 overflow-hidden"
+          >
+            <div className="container-pad py-3 flex flex-col gap-1">
+              {[
+                { to: "/", label: "Home" },
+                { to: "/products", label: "Products" },
+                { to: "/signin", label: "Sign In" },
+                { to: "/orders", label: "Track Orders" },
+              ].map(({ to, label }) => (
+                <NavLink
+                  key={to}
+                  to={to}
+                  className={linkCls}
+                  onClick={() => setMobileOpen(false)}
+                >
+                  {label}
+                </NavLink>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </header>
+  );
+}

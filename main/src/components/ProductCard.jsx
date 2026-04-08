@@ -1,0 +1,142 @@
+import { Link, useLocation } from "react-router-dom";
+import { motion } from "framer-motion";
+import { Star, ShoppingCart, Truck } from "lucide-react";
+import { useCart } from "../context/CartContext";
+import { formatINR } from "../utils/currency";
+import { getBasePrice, getDiscount, getReviewCount, getSalePrice } from "../utils/product";
+import { getProductSlug } from "../utils/slug";
+import { formatProductUnit } from "../utils/units";
+
+/** Stock label from product.stock. */
+function stockInfo(stock) {
+  const n = Number(stock);
+  if (!n || n === 0) return { label: "Out of Stock", cls: "text-red-500" };
+  if (n <= 5) return { label: `Only ${n} left`, cls: "text-orange-500" };
+  return { label: "In Stock", cls: "text-emerald-600 dark:text-emerald-400" };
+}
+
+export default function ProductCard({ product }) {
+  const { addToCart } = useCart();
+  const location = useLocation();
+
+  const fallbackImage = "https://placehold.co/600x400?text=No+Image";
+  const rawImage = product.image_url || product.image;
+  const imageUrl = Array.isArray(rawImage) ? rawImage[0] : rawImage || fallbackImage;
+
+  const basePrice = getBasePrice(product);
+  const salePrice = getSalePrice(product);
+  const discountPct = getDiscount(product);
+  const mrp = basePrice;
+  const savings = mrp - salePrice;
+  const reviewCount = getReviewCount(product.id);
+  const packSize = formatProductUnit(product.unit_value ?? product.unitValue, product.unit);
+  const { label: stockLabel, cls: stockCls } = stockInfo(product.stock);
+  const inStock = stockLabel !== "Out of Stock";
+  const productPath = `/products/${getProductSlug(product)}`;
+
+  return (
+    <motion.article
+      whileHover={{ y: -6 }}
+      transition={{ type: "spring", stiffness: 260, damping: 20 }}
+      className="rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm relative group"
+    >
+      {/* Discount badge */}
+      {basePrice > 0 && discountPct > 0 && (
+        <span className="absolute top-2.5 left-2.5 z-10 bg-red-500 text-white text-[11px] font-bold px-2 py-0.5 rounded-full shadow">
+          -{discountPct}%
+        </span>
+      )}
+
+      <Link
+        to={productPath}
+        state={{ from: location.pathname + location.search }}
+        className="block overflow-hidden"
+      >
+        <img
+          src={imageUrl}
+          alt={product.name}
+          loading="lazy"
+          decoding="async"
+          onError={(e) => { e.target.onerror = null; e.target.src = fallbackImage; }}
+          className="h-52 w-full object-cover group-hover:scale-105 transition duration-300"
+        />
+      </Link>
+
+      <div className="p-4 space-y-2">
+        {/* Category + pack */}
+        <div className="flex items-center justify-between gap-2 text-xs">
+          <p className="text-slate-500 dark:text-slate-400 truncate">
+            {product.category || "Fresh Product"}
+          </p>
+          <p className="text-emerald-600 dark:text-emerald-400 font-medium whitespace-nowrap">Pack: {packSize}</p>
+        </div>
+
+        {/* Product name */}
+        <h3 className="font-semibold leading-snug line-clamp-2 text-sm">{product.name}</h3>
+
+        {/* Ratings */}
+        <div className="flex items-center gap-1.5">
+          <span className="flex items-center gap-0.5 bg-emerald-600 text-white text-[11px] font-bold px-1.5 py-0.5 rounded">
+            {product.rating ?? "4.3"} <Star size={9} fill="currentColor" className="ml-0.5" />
+          </span>
+          <span className="text-xs text-slate-500 dark:text-slate-400">
+            ({reviewCount.toLocaleString("en-IN")})
+          </span>
+        </div>
+
+        {/* Price block */}
+        {basePrice > 0 ? (
+          <div className="flex items-baseline gap-2 flex-wrap">
+            <span className="text-base font-extrabold text-slate-900 dark:text-white">
+              {formatINR(salePrice)}
+            </span>
+            {discountPct > 0 && (
+              <>
+                <span className="text-xs text-slate-400 line-through">{formatINR(mrp)}</span>
+                <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400">
+                  Save {formatINR(savings)}
+                </span>
+              </>
+            )}
+          </div>
+        ) : (
+          <p className="text-sm font-medium text-slate-500">Price on request</p>
+        )}
+
+        {/* Stock status & free delivery */}
+        <div className="flex items-center justify-between text-xs pt-0.5">
+          <span className={`font-medium ${stockCls}`}>{stockLabel}</span>
+          <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-medium">
+            <Truck size={11} /> FREE Delivery
+          </span>
+        </div>
+
+        {/* Action buttons */}
+        <div className="flex gap-2 pt-2">
+          {inStock ? (
+            <motion.button
+              whileTap={{ scale: 0.95 }}
+              onClick={() => addToCart(product)}
+              className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-emerald-600 text-white text-sm font-medium hover:bg-emerald-700 transition"
+            >
+              <ShoppingCart size={14} />
+              Add to Cart
+            </motion.button>
+          ) : (
+            <span className="flex-1 text-center px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-400 text-sm font-medium cursor-not-allowed">
+              Out of Stock
+            </span>
+          )}
+
+          <Link
+            to={productPath}
+            state={{ from: location.pathname + location.search }}
+            className="px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-800 transition"
+          >
+            Details
+          </Link>
+        </div>
+      </div>
+    </motion.article>
+  );
+}
