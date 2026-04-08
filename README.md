@@ -85,3 +85,6 @@ npm run dev
 - Frontend: **http://localhost:5173**
 - API: **http://localhost:8000/api**
 - Admin: **http://localhost:8000/login/admin**
+
+
+#### All Products can be added through Admin Panel. And also adjust the price, and handle order and Update Order Status from there which will be reflected on Frontend
