@@ -1,6 +1,20 @@
-const API =
-  import.meta.env.VITE_API_URL ||
-  (import.meta.env.PROD ? "https://Gruhaveda-products-fqdz.onrender.com/api" : "http://127.0.0.1:8000/api");
+function resolveApiBase() {
+  if (typeof window !== "undefined") {
+    const host = String(window.location.hostname || "").toLowerCase();
+    if (host === "localhost" || host === "127.0.0.1" || host === "0.0.0.0") {
+      return "http://127.0.0.1:8000/api";
+    }
+  }
+
+  const envApi = (import.meta.env.VITE_API_URL || "").trim();
+  if (envApi) return envApi.replace(/\/$/, "");
+
+  return import.meta.env.PROD
+    ? "https://Gruhaveda-products-fqdz.onrender.com/api"
+    : "http://127.0.0.1:8000/api";
+}
+
+const API = resolveApiBase();
 
 let productsCache = null;
 let productsPromise = null;
@@ -84,6 +98,10 @@ export function normalizeImageUrl(url) {
       parsed.protocol = "https:";
     }
 
+    if (parsed.hostname === "www.myluxezone.com") {
+      parsed.hostname = "myluxezone.com";
+      return parsed.toString();
+    }
     return parsed.toString();
   } catch {
     return value;
