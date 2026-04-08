@@ -84,10 +84,6 @@ export function normalizeImageUrl(url) {
       parsed.protocol = "https:";
     }
 
-    if (parsed.hostname === "www.myluxezone.com") {
-      parsed.hostname = "myluxezone.com";
-      return parsed.toString();
-    }
     return parsed.toString();
   } catch {
     return value;
