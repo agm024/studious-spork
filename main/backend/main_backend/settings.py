@@ -101,7 +101,14 @@ WSGI_APPLICATION = "main_backend.wsgi.application"
 
 # ── Database ──────────────────────────────────────────────────────────────────
 DB_ENGINE = config("DB_ENGINE", default="postgresql").lower()
-DATABASE_URL = config("DATABASE_URL", default="").strip()
+DATABASE_URL = (
+    config("DATABASE_URL", default="").strip()
+    or config("DATABASE_PRIVATE_URL", default="").strip()
+    or config("DATABASE_PUBLIC_URL", default="").strip()
+    or config("POSTGRES_URL", default="").strip()
+    or config("POSTGRESQL_URL", default="").strip()
+    or config("RENDER_DATABASE_URL", default="").strip()
+)
 DB_CONN_MAX_AGE = config("DB_CONN_MAX_AGE", default=600, cast=int)
 DB_CONN_HEALTH_CHECKS = config("DB_CONN_HEALTH_CHECKS", default=True, cast=bool)
 PGBOUNCER_TRANSACTION_POOLING = config("PGBOUNCER_TRANSACTION_POOLING", default=False, cast=bool)
