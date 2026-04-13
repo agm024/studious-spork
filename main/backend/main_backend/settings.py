@@ -17,7 +17,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = config("SECRET_KEY", default="django-insecure-change-me-in-production-!@#$%")
 
-DEBUG = config("DEBUG", default=True, cast=bool)
+DEBUG = config("DEBUG", default=False, cast=bool)
 
 if not DEBUG and SECRET_KEY == "django-insecure-change-me-in-production-!@#$%":
     raise ValueError("SECRET_KEY must be set to a secure value when DEBUG=False")
@@ -113,6 +113,14 @@ DB_CONN_MAX_AGE = config("DB_CONN_MAX_AGE", default=600, cast=int)
 DB_CONN_HEALTH_CHECKS = config("DB_CONN_HEALTH_CHECKS", default=True, cast=bool)
 PGBOUNCER_TRANSACTION_POOLING = config("PGBOUNCER_TRANSACTION_POOLING", default=False, cast=bool)
 
+if not DATABASE_URL and not DEBUG and DB_ENGINE in {"postgres", "postgresql"}:
+    _prod_db_host = config("DB_HOST", default="").strip()
+    if _prod_db_host in {"", "localhost", "127.0.0.1", "::1"}:
+        raise ValueError(
+            "Production database is not configured. Set DATABASE_URL (or DATABASE_PRIVATE_URL). "
+            "Localhost fallback is only intended for local development."
+        )
+
 if DATABASE_URL:
     DATABASES = {
         "default": dj_database_url.parse(
@@ -135,11 +143,11 @@ elif DB_ENGINE in {"postgres", "postgresql"}:
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.postgresql",
-            "NAME": config("DB_NAME", default="marketplace"),
-            "USER": config("DB_USER", default="postgres"),
-            "PASSWORD": config("DB_PASSWORD", default="marketplace"),
-            "HOST": config("DB_HOST", default="localhost"),
-            "PORT": config("DB_PORT", default="5432"),
+            "NAME": config("DB_NAME", default="marketplace" if DEBUG else ""),
+            "USER": config("DB_USER", default="postgres" if DEBUG else ""),
+            "PASSWORD": config("DB_PASSWORD", default="marketplace" if DEBUG else ""),
+            "HOST": config("DB_HOST", default="localhost" if DEBUG else ""),
+            "PORT": config("DB_PORT", default="5432" if DEBUG else ""),
             "CONN_MAX_AGE": DB_CONN_MAX_AGE,
             "CONN_HEALTH_CHECKS": DB_CONN_HEALTH_CHECKS,
         }
