@@ -5,6 +5,7 @@ import os
 from pathlib import Path
 from datetime import timedelta
 from decouple import config, Csv
+import dj_database_url
 
 try:
     import whitenoise  # noqa: F401
@@ -100,8 +101,30 @@ WSGI_APPLICATION = "main_backend.wsgi.application"
 
 # ── Database ──────────────────────────────────────────────────────────────────
 DB_ENGINE = config("DB_ENGINE", default="postgresql").lower()
+DATABASE_URL = config("DATABASE_URL", default="").strip()
+DB_CONN_MAX_AGE = config("DB_CONN_MAX_AGE", default=600, cast=int)
+DB_CONN_HEALTH_CHECKS = config("DB_CONN_HEALTH_CHECKS", default=True, cast=bool)
+PGBOUNCER_TRANSACTION_POOLING = config("PGBOUNCER_TRANSACTION_POOLING", default=False, cast=bool)
 
-if DB_ENGINE in {"postgres", "postgresql"}:
+if DATABASE_URL:
+    DATABASES = {
+        "default": dj_database_url.parse(
+            DATABASE_URL,
+            conn_max_age=DB_CONN_MAX_AGE,
+            conn_health_checks=DB_CONN_HEALTH_CHECKS,
+        )
+    }
+
+    # Some managed Postgres setups (for example, Render + pgBouncer) require
+    # server-side cursors to be disabled in transaction pooling mode.
+    if PGBOUNCER_TRANSACTION_POOLING:
+        DATABASES["default"]["DISABLE_SERVER_SIDE_CURSORS"] = True
+
+    if not DEBUG:
+        DATABASES["default"].setdefault("OPTIONS", {})
+        DATABASES["default"]["OPTIONS"].setdefault("sslmode", "require")
+
+elif DB_ENGINE in {"postgres", "postgresql"}:
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.postgresql",
@@ -110,8 +133,13 @@ if DB_ENGINE in {"postgres", "postgresql"}:
             "PASSWORD": config("DB_PASSWORD", default="marketplace"),
             "HOST": config("DB_HOST", default="localhost"),
             "PORT": config("DB_PORT", default="5432"),
+            "CONN_MAX_AGE": DB_CONN_MAX_AGE,
+            "CONN_HEALTH_CHECKS": DB_CONN_HEALTH_CHECKS,
         }
     }
+
+    if PGBOUNCER_TRANSACTION_POOLING:
+        DATABASES["default"]["DISABLE_SERVER_SIDE_CURSORS"] = True
 else:
     DATABASES = {
         "default": {
