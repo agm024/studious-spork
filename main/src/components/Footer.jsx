@@ -24,7 +24,6 @@ const QUICK_LINKS = [
   { label: "Home", to: "/" },
   { label: "Products", to: "/products" },
   { label: "Cart", to: "/cart" },
-  { label: "Checkout", to: "/checkout" },
   { label: "Sign In", to: "/signin" },
   { label: "Sign Up", to: "/signup" },
 ];
@@ -34,7 +33,6 @@ const HELP_LINKS = [
   { label: "Sign Up", to: "/signup" },
   { label: "Products", to: "/products" },
   { label: "Cart", to: "/cart" },
-  { label: "Checkout", to: "/checkout" },
 ];
 
 const CATEGORIES = [
@@ -91,7 +89,7 @@ export default function Footer() {
               Gruhaved Organic Food And Agro Products
             </Link>
             <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed max-w-xs">
-              Your trusted source for organic food and agro essentials, delivered with care from verified suppliers.
+              Your trusted source for Homemade Dairy Products essentials, delivered with care from verified suppliers.
             </p>
 
             {/* Contact info */}
@@ -205,9 +203,7 @@ export default function Footer() {
         <div className="container-pad py-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-400 dark:text-slate-500">
           <p>© {new Date().getFullYear()} Gruhaved Organic Food And Agro Products. All rights reserved.</p>
           <div className="flex gap-4">
-            <Link to="/privacy-policy" className="hover:text-emerald-500 transition">Privacy Policy</Link>
-            <Link to="/about" className="hover:text-emerald-500 transition">Terms of Service</Link>
-            <Link to="/return-policy" className="hover:text-emerald-500 transition">Return Policy</Link>
+           
           </div>
         </div>
       </div>

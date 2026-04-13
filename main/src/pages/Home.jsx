@@ -87,27 +87,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Categories */}
-      <section className="container-pad py-8">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-bold">Shop by Category</h2>
-          <Link to="/products" className="text-sm text-emerald-600 dark:text-emerald-400 hover:underline flex items-center gap-1">
-            All products <ChevronRight size={14} />
-          </Link>
-        </div>
-        <div className="flex flex-wrap gap-3">
-          {categories.map((c) => (
-            <button
-              key={c}
-              onClick={() => goToCategory(c)}
-              className="px-4 py-2 rounded-full border border-slate-300 dark:border-slate-700 text-sm hover:bg-slate-900 hover:text-white dark:hover:bg-white dark:hover:text-slate-900 transition font-medium"
-            >
-              {c}
-            </button>
-          ))}
-        </div>
-      </section>
-
       {/* Featured */}
       <section className="container-pad py-8">
         <div className="flex items-center justify-between mb-4">

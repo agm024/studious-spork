@@ -43,6 +43,7 @@ export default function Navbar() {
         <div className="hidden md:flex items-center gap-1">
           <NavLink to="/" className={linkCls}>Home</NavLink>
           <NavLink to="/products" className={linkCls}>Products</NavLink>
+          <NavLink to="/orders" className={linkCls}>Track Orders</NavLink>
         </div>
 
         {/* Right icons */}
