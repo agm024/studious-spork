@@ -94,14 +94,14 @@ export default function Footer() {
 
             {/* Contact info */}
             <div className="space-y-2">
-              <a href="tel:+91000000" className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition">
-                <Phone size={14} /> +91 Your Number Please
+              <a href="tel:+919324546080" className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition">
+                <Phone size={14} /> +91 9324546080
               </a>
-              <a href="mailto:support@" className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition">
-                <Mail size={14} /> support@
+              <a href="mailto:support@logicalsolutions.co.in" className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition">
+                <Mail size={14} /> support@logicalsolutions.co.in
               </a>
               <p className="flex items-start gap-2 text-sm text-slate-500 dark:text-slate-400">
-                <MapPin size={14} className="mt-0.5 shrink-0" /> Mumbai, Maharashtra, India – 400706
+                <MapPin size={14} className="mt-0.5 shrink-0" /> Navi Mumbai, Maharashtra, India – 400709
               </p>
             </div>
 

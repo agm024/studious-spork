@@ -34,12 +34,12 @@ export default function Home() {
     return "http://localhost:5173";
   }, []);
   const canonicalUrl = `${siteUrl}/`;
-  const seoTitle = "Gruhaved Organic Food And Agro Products | Fresh Groceries, Staples And Agro Essentials";
+  const seoTitle = "Gruhaved Organic Food And Agro Products | Homemade Dairy Products";
   const seoDescription =
     "Shop trusted organic food and agro essentials at Gruhaved. Discover fresh produce, pantry staples and daily needs with secure checkout and reliable delivery.";
 
   const contacts = [
-    { id: 1, name: "Gruhaved Organic Food And Agro Products", role: "Customer Service", phone: "+91 Your Number Please", email: "support@localhost", accent: "from-emerald-500 to-blue-500" },
+    { id: 1, name: "Gruhaved Organic Food And Agro Products", role: "Customer Service", phone: "+91 9324546080", email: "support@logicalsolutions.co.in", accent: "from-emerald-500 to-blue-500" },
   ];
 
   const goToCategory = (category) => navigate(`/products?category=${encodeURIComponent(category)}`);
@@ -213,12 +213,7 @@ export default function Home() {
                     </a>
                   </div>
 
-                  <Link
-                    to="/contact"
-                    className="mt-4 inline-flex items-center rounded-lg px-4 py-2 text-sm font-medium bg-slate-900 text-white dark:bg-white dark:text-slate-900 hover:opacity-90 transition"
-                  >
-                    Contact {person.name}
-                  </Link>
+                  
                 </div>
               </div>
             </motion.div>
