@@ -1,7 +1,6 @@
 from django.contrib.auth import authenticate
 from django.conf import settings
 from django.db import IntegrityError
-from django.utils import timezone
 from django.utils.crypto import get_random_string
 from datetime import timedelta
 import logging
@@ -16,7 +15,6 @@ from google.oauth2 import id_token as google_id_token
 
 from .models import User
 from .serializers import SignupSerializer, SigninSerializer, UserSerializer, UpdateProfileSerializer
-from .utils import send_verification_email
 from .firebase_auth import verify_firebase_id_token
 
 
@@ -64,12 +62,6 @@ def _upsert_social_user(email, name):
         user.name = name
         user.save(update_fields=["name"])
 
-    if not user.email_verified:
-        user.email_verified = True
-        user.email_verification_code = ""
-        user.email_verification_expires_at = None
-        user.save(update_fields=["email_verified", "email_verification_code", "email_verification_expires_at"])
-
     return user
 
 
@@ -102,12 +94,6 @@ def signup(request):
         return Response({"error": "Email is already registered."}, status=status.HTTP_409_CONFLICT)
 
     user = serializer.save()
-    if not user.email_verified:
-        user.email_verified = True
-        user.email_verification_code = ""
-        user.email_verification_expires_at = None
-        user.save(update_fields=["email_verified", "email_verification_code", "email_verification_expires_at"])
-
     payload = _token_response_with_remember(user, remember_me=True)
     return Response(payload, status=status.HTTP_201_CREATED)
 
@@ -199,87 +185,7 @@ def firebase_signin(request):
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def verify_email(request):
-    email = str(request.data.get("email", "")).lower().strip()
-    code = str(request.data.get("code", "")).strip()
-
-    if not email or not code:
-        return Response({"error": "Email and code are required."}, status=status.HTTP_400_BAD_REQUEST)
-
-    if len(code) != 6 or not code.isdigit():
-        return Response({"error": "Verification code must be 6 digits."}, status=status.HTTP_400_BAD_REQUEST)
-
-    try:
-        user = User.objects.get(email=email)
-    except User.DoesNotExist:
-        return Response({"error": "Account not found."}, status=status.HTTP_404_NOT_FOUND)
-
-    if user.email_verified:
-        return Response(_token_response(user), status=status.HTTP_200_OK)
-
-    if not user.email_verification_code:
-        email_sent = send_verification_email(user)
-        return Response(
-            {
-                "error": "A new code has been sent. Please check your email.",
-                "email_sent": email_sent,
-            },
-            status=status.HTTP_400_BAD_REQUEST,
-        )
-
-    if user.email_verification_code != code:
-        return Response(
-            {"error": "Invalid verification code. Use the latest code sent to your email."},
-            status=status.HTTP_400_BAD_REQUEST,
-        )
-
-    if user.email_verification_expires_at and timezone.now() > user.email_verification_expires_at:
-        email_sent = send_verification_email(user)
-        return Response(
-            {
-                "error": "Verification code expired. We've sent a new code.",
-                "email_sent": email_sent,
-            },
-            status=status.HTTP_400_BAD_REQUEST,
-        )
-
-    user.email_verified = True
-    user.email_verification_code = ""
-    user.email_verification_expires_at = None
-    user.save(
-        update_fields=[
-            "email_verified",
-            "email_verification_code",
-            "email_verification_expires_at",
-        ]
-    )
-
-    return Response(_token_response(user), status=status.HTTP_200_OK)
-
-
-@api_view(["POST"])
-@permission_classes([AllowAny])
-@throttle_classes([LoginRateThrottle])
-def resend_verification(request):
-    email = str(request.data.get("email", "")).lower().strip()
-    if not email:
-        return Response({"error": "Email is required."}, status=status.HTTP_400_BAD_REQUEST)
-
-    try:
-        user = User.objects.get(email=email)
-    except User.DoesNotExist:
-        return Response({"error": "Account not found."}, status=status.HTTP_404_NOT_FOUND)
-
-    if user.email_verified:
-        return Response({"message": "Email is already verified."}, status=status.HTTP_200_OK)
-
-    email_sent = send_verification_email(user)
-    if not email_sent:
-        return Response(
-            {"error": "Could not send verification email right now. Please try again shortly."},
-            status=status.HTTP_503_SERVICE_UNAVAILABLE,
-        )
-
-    return Response({"message": "Verification code resent.", "email_sent": True}, status=status.HTTP_200_OK)
+    return Response({"error": "Email verification is no longer required."}, status=status.HTTP_410_GONE)
 
 
 @api_view(["GET"])
@@ -291,7 +197,6 @@ def me(request):
 @api_view(["PATCH"])
 @permission_classes([IsAuthenticated])
 def update_profile(request):
-    email_changed = False
     serializer = UpdateProfileSerializer(data=request.data, context={"request": request})
     if not serializer.is_valid():
         return Response({"errors": serializer.errors}, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
@@ -305,17 +210,10 @@ def update_profile(request):
             if User.objects.filter(email=new_email).exists():
                 return Response({"error": "Email is already registered."}, status=status.HTTP_409_CONFLICT)
             user.email = new_email
-            user.email_verified = False
-            user.email_verification_code = ""
-            user.email_verification_expires_at = None
-            email_changed = True
     try:
         user.save()
     except IntegrityError:
         return Response({"error": "Email is already registered."}, status=status.HTTP_409_CONFLICT)
-
-    if email_changed:
-        send_verification_email(user)
 
     return Response({"user": UserSerializer(user).data})
 
