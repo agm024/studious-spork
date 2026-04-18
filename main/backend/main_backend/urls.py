@@ -17,6 +17,9 @@ def _inject_dashboard_stats(ctx, request):
             status__in=["delivered", "processing", "shipped", "out_for_delivery"]
         ).aggregate(total=Sum("total_amount"))["total"] or 0
 
+        low_stock_products = Product.objects.filter(is_active=True, stock__lte=5).count()
+        today_orders = Order.objects.filter(created_at__date=today).count()
+
         ctx["dashboard_stats"] = {
             "total_orders": Order.objects.count(),
             "pending_orders": Order.objects.filter(status="pending").count(),
@@ -24,8 +27,11 @@ def _inject_dashboard_stats(ctx, request):
                 status__in=["processing", "shipped", "out_for_delivery"]
             ).count(),
             "total_revenue_display": f"{float(revenue):,.0f}",
-            "total_users": User.objects.count(),
+            "total_users": User.objects.filter(is_staff=False).count(),
+            "today_orders": today_orders,
             "active_products": Product.objects.filter(is_active=True).count(),
+            "active_products": Product.objects.filter(is_active=True).count(),
+            "low_stock_products": low_stock_products,
         }
         ctx["recent_orders"] = (
             Order.objects.order_by("-created_at")
