@@ -156,15 +156,6 @@ export default function CheckoutSuccess() {
           Thank you for your purchase. Your invoice has been emailed to you and is available to download below.
         </p>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-          <button
-            type="button"
-            onClick={handleDownloadInvoice}
-            disabled={downloadingInvoice}
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl border border-slate-200 dark:border-slate-700 font-medium hover:bg-slate-50 dark:hover:bg-slate-800 transition disabled:opacity-60"
-          >
-            {downloadingInvoice ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}
-            Download Invoice
-          </button>
           <Link
             to="/orders"
             className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-emerald-600 text-white font-medium hover:bg-emerald-700 transition"
