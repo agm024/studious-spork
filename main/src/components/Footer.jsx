@@ -15,9 +15,9 @@ import {
 } from "lucide-react";
 
 const TRUST_BADGES = [
-  { icon: ShieldCheck, label: "100% Genuine", sub: "Verified products only" },
+  { icon: ShieldCheck, label: "100% Organic", sub: "All Homemade Products" },
   { icon: Truck, label: "Free Delivery", sub: "On all orders" },
-  { icon: Headphones, label: "24/7 Support", sub: "Always here to help" },
+  { icon: Headphones, label: "Customer Support", sub: "Always here to help" },
 ];
 
 const QUICK_LINKS = [

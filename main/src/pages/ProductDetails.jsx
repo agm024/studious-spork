@@ -280,7 +280,7 @@ export default function ProductDetails() {
           transition={{ duration: 0.35 }}
         >
           <p className="text-sm text-slate-500 dark:text-slate-400">
-            {hydratedProduct.brand} • {hydratedProduct.category}
+            {hydratedProduct.brand} {hydratedProduct.category}
           </p>
           <p className="text-sm text-emerald-600 dark:text-emerald-400 font-medium mt-1">Pack: {packSize}</p>
           <h1 className="text-3xl font-bold mt-1">{hydratedProduct.name}</h1>
@@ -331,13 +331,6 @@ export default function ProductDetails() {
             )}
           </div>
 
-          {/* Viewing counter */}
-          <div className="mt-3 flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
-            <Eye size={15} className="text-emerald-500" />
-            <span>
-              <span className="font-semibold text-slate-700 dark:text-slate-200">{viewingCount} people</span> are viewing this right now
-            </span>
-          </div>
 
           {/* Color variants */}
           {hasVariants && (
@@ -504,10 +497,10 @@ export default function ProductDetails() {
               <Shield size={14} className="text-green-500" /> Secure Payments
             </span>
             <span className="flex items-center gap-1.5">
-              <CheckCircle2 size={14} className="text-green-500" /> 100% Authentic
+              <CheckCircle2 size={14} className="text-green-500" /> 100% Homemade and Authentic
             </span>
             <span className="flex items-center gap-1.5">
-              <Clock size={14} className="text-emerald-500" /> Ships in 2–5 days
+              <Clock size={14} className="text-emerald-500" /> Delivers in 2–5 days
             </span>
           </div>
         </motion.div>

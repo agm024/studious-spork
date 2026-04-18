@@ -12,6 +12,8 @@ import { useProducts } from "../hooks/useProducts";
 const TRUST_BADGES = [
   { icon: ShieldCheck, label: "Quality Checked", sub: "Freshness and sourcing verified", color: "text-emerald-600 bg-emerald-50 dark:bg-emerald-900/30" },
   { icon: Truck, label: "Fast Local Delivery", sub: "Across your nearby service zones", color: "text-emerald-600 bg-emerald-50 dark:bg-emerald-900/30" },
+  { icon: ShieldCheck, label: "100% Organic", sub: "All Homemade Products", color: "text-emerald-600 bg-emerald-50 dark:bg-emerald-900/30" },
+
 ];
 
 const TESTIMONIALS = [];
