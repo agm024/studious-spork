@@ -1,8 +1,8 @@
 ### Gruhveda MarketPlace
 
 **Tech stack:**
-- Frontend: React 18, Vite, Tailwind CSS v4, Framer Motion, React Router v7, react-hot-toast, react-helmet-async
-- Backend: **Django 6**, Django REST Framework, SimpleJWT, django-cors-headers, psycopg2
+- Frontend: React 18, Vite, Tailwind CSS v4
+- Backend: **Django 6**
 - Database: **PostgreSQL** (local or hosted — Supabase, Render, Railway, etc.)
 
 ---
