@@ -10,12 +10,8 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.throttling import AnonRateThrottle
 from rest_framework_simplejwt.tokens import RefreshToken
-from google.auth.transport import requests as google_requests
-from google.oauth2 import id_token as google_id_token
-
 from .models import User
 from .serializers import SignupSerializer, SigninSerializer, UserSerializer, UpdateProfileSerializer
-from .firebase_auth import verify_firebase_id_token
 
 
 logger = logging.getLogger(__name__)
@@ -116,70 +112,6 @@ def signin(request):
 
     return Response(_token_response_with_remember(user, remember_me=remember_me))
 
-
-@api_view(["POST"])
-@permission_classes([AllowAny])
-@throttle_classes([LoginRateThrottle])
-def google_signin(request):
-    raw_token = str(request.data.get("id_token", "")).strip()
-    remember_me = _parse_remember_me(request)
-    if not raw_token:
-        return Response({"error": "Google token is required."}, status=status.HTTP_400_BAD_REQUEST)
-
-    client_id = getattr(settings, "GOOGLE_CLIENT_ID", "")
-    if not client_id:
-        return Response(
-            {"error": "Google sign in is not configured on the server."},
-            status=status.HTTP_503_SERVICE_UNAVAILABLE,
-        )
-
-    try:
-        info = google_id_token.verify_oauth2_token(raw_token, google_requests.Request(), client_id)
-    except ValueError:
-        return Response({"error": "Invalid Google token."}, status=status.HTTP_401_UNAUTHORIZED)
-
-    email = str(info.get("email", "")).lower().strip()
-    if not email:
-        return Response({"error": "Google account email is missing."}, status=status.HTTP_400_BAD_REQUEST)
-
-    name = str(info.get("name", "")).strip() or email.split("@", 1)[0].title()
-    user = _upsert_social_user(email=email, name=name)
-    return Response(_token_response_with_remember(user, remember_me=remember_me))
-
-
-@api_view(["POST"])
-@permission_classes([AllowAny])
-@throttle_classes([LoginRateThrottle])
-def firebase_signin(request):
-    raw_token = str(request.data.get("id_token", "")).strip()
-    remember_me = _parse_remember_me(request)
-    if not raw_token:
-        return Response({"error": "Firebase token is required."}, status=status.HTTP_400_BAD_REQUEST)
-
-    try:
-        info = verify_firebase_id_token(raw_token)
-    except RuntimeError:
-        return Response(
-            {"error": "Firebase sign in is not configured on the server."},
-            status=status.HTTP_503_SERVICE_UNAVAILABLE,
-        )
-    except Exception as exc:
-        logger.warning("Firebase token verification failed: %s", exc)
-        payload = {"error": "Invalid Firebase token."}
-        if settings.DEBUG:
-            payload["detail"] = str(exc)
-        return Response(payload, status=status.HTTP_401_UNAUTHORIZED)
-
-    email = str(info.get("email", "")).lower().strip()
-    if not email:
-        return Response({"error": "Firebase account email is missing."}, status=status.HTTP_400_BAD_REQUEST)
-
-    name = str(request.data.get("name", "")).strip() or str(info.get("name", "")).strip()
-    if not name:
-        name = email.split("@", 1)[0].title()
-
-    user = _upsert_social_user(email=email, name=name)
-    return Response(_token_response_with_remember(user, remember_me=remember_me))
 
 
 @api_view(["POST"])
